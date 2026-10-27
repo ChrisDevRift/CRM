@@ -1,0 +1,17 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+---
+<AppLayout title="Panel">
+  <p class="bienvenida">
+    Bienvenido. Ve a <a href="/reservas">Reservas</a> para consultarlas o cambiar su estado.
+  </p>
+</AppLayout>
+
+<style>
+  .bienvenida {
+    color: var(--text-muted);
+  }
+  .bienvenida a {
+    color: var(--accent);
+  }
+</style>

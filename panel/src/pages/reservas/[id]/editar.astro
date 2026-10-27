@@ -1,0 +1,10 @@
+---
+// panel/src/pages/reservas/[id]/editar.astro
+import AppLayout from '../../../layouts/AppLayout.astro';
+import ReservaForm from '../../../components/ReservaForm.astro';
+
+const { id } = Astro.params;
+---
+<AppLayout title="Editar reserva">
+  <ReservaForm modo="editar" id={id} />
+</AppLayout>

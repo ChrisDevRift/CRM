@@ -1,0 +1,478 @@
+---
+// panel/src/components/ReservaForm.astro
+interface Props {
+  modo: 'crear' | 'editar';
+  id?: string;
+}
+const { modo, id } = Astro.props;
+const editar = modo === 'editar';
+
+type TipoInput = 'text' | 'email' | 'tel' | 'date' | 'time' | 'number';
+type Campo = {
+  name: string;
+  label: string;
+  tipo?: TipoInput | 'select'; 
+  opciones?: [string, string][];
+  requerido?: boolean;
+  ancho?: boolean;
+  soloRedondo?: boolean;
+  valor?: string;
+  min?: string;
+  max?: string;
+  step?: string;
+};
+
+const cliente: (Omit<Campo, 'tipo'> & { tipo?: TipoInput })[] = [
+  { name: 'nombre', label: 'Nombre', requerido: true },
+  { name: 'email', label: 'Correo', tipo: 'email' },
+  { name: 'telefono', label: 'Teléfono', tipo: 'tel' },
+];
+
+const servicio: Campo[] = [
+  { name: 'tipo_viaje', label: 'Tipo de viaje', tipo: 'select', requerido: true,
+    opciones: [['one_way', 'Sencillo'], ['round_trip', 'Redondo'], ['custom', 'Personalizado']] },
+  { name: 'vehiculo_id', label: 'Vehículo', tipo: 'select', requerido: true, opciones: [] },
+  { name: 'zona_origen_id', label: 'Zona de origen (para el precio)', tipo: 'select', opciones: [] },
+  { name: 'zona_destino_id', label: 'Zona de destino (para el precio)', tipo: 'select', opciones: [] },
+  { name: 'origen', label: 'Origen', requerido: true, ancho: true },
+  { name: 'destino', label: 'Destino', requerido: true, ancho: true },
+  { name: 'fecha_servicio', label: 'Fecha', tipo: 'date', requerido: true },
+  { name: 'hora_servicio', label: 'Hora', tipo: 'time', requerido: true },
+  { name: 'fecha_regreso', label: 'Fecha de regreso', tipo: 'date', soloRedondo: true },
+  { name: 'hora_regreso', label: 'Hora de regreso', tipo: 'time', soloRedondo: true },
+  { name: 'vuelo', label: 'Vuelo de ida' },
+  { name: 'vuelo_regreso', label: 'Vuelo de regreso', soloRedondo: true },
+  { name: 'pasajeros', label: 'Pasajeros', tipo: 'number', requerido: true, valor: '1', min: '1', max: '100' },
+  { name: 'duracion_min', label: 'Duración estimada (min)', tipo: 'number', min: '1', max: '1440' },
+];
+
+const pago: Campo[] = [
+  { name: 'moneda', label: 'Moneda', tipo: 'select',
+    opciones: [['USD', 'USD'], ['MXN', 'MXN'], ['CAD', 'CAD']] },
+  { name: 'metodo_pago', label: 'Método de pago', tipo: 'select',
+    opciones: [['', '—'], ['stripe', 'Stripe'], ['paypal', 'PayPal'], ['efectivo', 'Efectivo'], ['transferencia', 'Transferencia']] },
+  { name: 'estado_pago', label: 'Estado del pago', tipo: 'select',
+    opciones: [['', 'Automático'], ['no_aplica', 'No aplica'], ['pendiente', 'Pendiente'], ['pagado', 'Pagado'], ['fallido', 'Fallido'], ['reembolsado', 'Reembolsado']] },
+  { name: 'cupon_codigo', label: 'Cupón' },
+];
+
+const estados: [string, string][] = [
+  ['cotizacion_pendiente', 'Cotización pendiente'],
+  ['cotizacion_respondida', 'Cotización respondida'],
+  ['confirmada', 'Confirmada'],
+  ['completada', 'Completada'],
+  ['cancelada', 'Cancelada'],
+];
+
+const volver = editar ? `/reservas/${id}` : '/reservas';
+---
+{/* Un campo = una etiqueta con su control. Los <select> dinámicos se llenan desde el script. */}
+{/* prettier-ignore */}
+<div id="rf-root" data-modo={modo} data-id={id ?? ''}>
+  <h1>{editar ? 'Editar reserva' : 'Nueva reserva'}</h1>
+  <p id="rf-msg" class="muted">Cargando…</p>
+
+  <form id="rf-form" class="rf" hidden>
+    {!editar && (
+      <fieldset>
+        <legend>Cliente</legend>
+        <div class="rejilla">
+          {cliente.map((f) => (
+            <label class="campo">
+              <span>{f.label}</span>
+              <input name={f.name} type={f.tipo ?? 'text'} required={f.requerido} />
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    )}
+
+    <fieldset>
+      <legend>Servicio</legend>
+      <div class="rejilla">
+        {servicio.map((f) => (
+          <label class:list={['campo', { 'campo--ancho': f.ancho }]} data-solo-redondo={f.soloRedondo ? '' : undefined}>
+            <span>{f.label}</span>
+            {f.tipo === 'select' ? (
+              <select name={f.name} required={f.requerido}>
+                {(f.opciones ?? []).map(([v, t]) => <option value={v}>{t}</option>)}
+              </select>
+            ) : (
+              <input name={f.name} type={f.tipo ?? 'text'} required={f.requerido}
+                     value={f.valor} min={f.min} max={f.max} />
+            )}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pago</legend>
+      <div class="rejilla">
+        <label class="campo">
+          <span>Monto</span>
+          <input name="monto" type="number" min="0" step="0.01" />
+        </label>
+        {pago.map((f) => (
+          <label class="campo">
+            <span>{f.label}</span>
+            {f.tipo === 'select' ? (
+              <select name={f.name}>
+                {(f.opciones ?? []).map(([v, t]) => <option value={v}>{t}</option>)}
+              </select>
+            ) : (
+              <input name={f.name} type="text" />
+            )}
+          </label>
+        ))}
+      </div>
+
+      <div class="sugerir">
+        <label class="campo campo--corto">
+          <span>Paradas extra ida</span>
+          <input name="paradas_ida" type="number" min="0" max="5" value="0" />
+        </label>
+        <label class="campo campo--corto" data-solo-redondo>
+          <span>Paradas extra regreso</span>
+          <input name="paradas_regreso" type="number" min="0" max="5" value="0" />
+        </label>
+        <button type="button" id="rf-sugerir" class="boton-sec">Sugerir precio</button>
+        <span id="rf-sugerir-msg" class="muted"></span>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>{editar ? 'Estado y notas' : 'Notas'}</legend>
+      <div class="rejilla">
+        {editar ? (
+          <label class="campo">
+            <span>Estado</span>
+            <select name="estado">
+              {estados.map(([v, t]) => <option value={v}>{t}</option>)}
+            </select>
+          </label>
+        ) : (
+          <label class="check">
+            <input name="es_venta" type="checkbox" />
+            <span>Es una venta (queda confirmada)</span>
+          </label>
+        )}
+        <label class="campo campo--ancho">
+          <span>Notas</span>
+          <textarea name="notas" rows="3"></textarea>
+        </label>
+      </div>
+    </fieldset>
+
+    {editar && <p class="muted">Los datos del cliente se editan desde Clientes (próximamente).</p>}
+
+    <p id="rf-error" class="rf__error" role="alert" hidden></p>
+
+    <div class="acciones">
+      <button type="submit" id="rf-guardar">{editar ? 'Guardar cambios' : 'Crear reserva'}</button>
+      <a class="boton-sec" href={volver}>Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<style>
+  [hidden] {
+    display: none !important;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.5rem;
+    margin: 0 0 24px;
+  }
+
+  .muted {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .rf {
+    max-width: 760px;
+  }
+
+  fieldset {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 0 24px;
+    padding: 16px 0 0;
+  }
+
+  legend {
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0 12px 0 0;
+  }
+
+  .rejilla {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 20px;
+  }
+
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .campo--ancho {
+    grid-column: 1 / -1;
+  }
+
+  .campo span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .campo input,
+  .campo select,
+  .campo textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+  }
+
+  .campo textarea {
+    resize: vertical;
+  }
+
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+
+  .sugerir {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 16px;
+    margin-top: 16px;
+  }
+
+  .campo--corto {
+    width: 150px;
+  }
+
+  .boton-sec {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .boton-sec:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .rf__error {
+    color: var(--error);
+    font-size: 0.9rem;
+  }
+
+  .acciones {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .acciones button[type='submit'] {
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 22px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .acciones button[type='submit']:hover {
+    background: var(--accent-hover);
+  }
+
+  .acciones button[type='submit']:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  @media (max-width: 640px) {
+    .rejilla {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { API_URL } from '../lib/api';
+  import { CAMPOS_RESERVA, cambios, datosNuevos, type Valores } from '../lib/reservaForm';
+
+  const root = document.querySelector<HTMLDivElement>('#rf-root')!;
+  const modo = root.dataset.modo as 'crear' | 'editar';
+  const id = root.dataset.id;
+
+  const form = document.querySelector<HTMLFormElement>('#rf-form')!;
+  const msg = document.querySelector<HTMLParagraphElement>('#rf-msg')!;
+  const errorEl = document.querySelector<HTMLParagraphElement>('#rf-error')!;
+  const guardar = document.querySelector<HTMLButtonElement>('#rf-guardar')!;
+  const sugerir = document.querySelector<HTMLButtonElement>('#rf-sugerir')!;
+  const sugerirMsg = document.querySelector<HTMLSpanElement>('#rf-sugerir-msg')!;
+
+  type Control = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+  const campo = (n: string) => form.elements.namedItem(n) as Control | null;
+
+  let inicial: Valores = {};
+
+  const opts = { credentials: 'include' as const };
+  const json = { 'Content-Type': 'application/json' };
+
+  function leer(): Valores {
+    const v: Valores = {};
+    for (const c of CAMPOS_RESERVA) {
+      const el = campo(c);
+      if (el) v[c] = el.value;
+    }
+    return v;
+  }
+
+  function escribir(datos: Record<string, unknown>) {
+    for (const c of CAMPOS_RESERVA) {
+      const el = campo(c);
+      if (el) el.value = datos[c] === null || datos[c] === undefined ? '' : String(datos[c]);
+    }
+  }
+
+  function llenarSelect(nombre: string, pares: [string, string][], vacio: string) {
+    const sel = campo(nombre) as HTMLSelectElement;
+    sel.replaceChildren(new Option(vacio, ''), ...pares.map(([v, t]) => new Option(t, v)));
+  }
+
+  function actualizarVisibilidad() {
+    const redondo = campo('tipo_viaje')!.value === 'round_trip';
+    form.querySelectorAll<HTMLElement>('[data-solo-redondo]').forEach((el) => {
+      el.hidden = !redondo;
+    });
+  }
+
+  function mostrarError(texto: string) {
+    errorEl.textContent = texto;
+    errorEl.hidden = false;
+  }
+
+  async function iniciar() {
+    const rc = await fetch(`${API_URL}/catalogos`, opts);
+    if (rc.status === 401) return void (window.location.href = '/login');
+    if (!rc.ok) return void (msg.textContent = 'No se pudieron cargar los catálogos.');
+    const cat: {
+      zonas: { id: number; nombre: string }[];
+      vehiculos: { id: string; label: string; capacidad: string }[];
+    } = await rc.json();
+
+    llenarSelect('vehiculo_id', cat.vehiculos.map((v) => [v.id, `${v.label} (${v.capacidad})`]), 'Elige…');
+    llenarSelect('zona_origen_id', cat.zonas.map((z) => [String(z.id), z.nombre]), '—');
+    llenarSelect('zona_destino_id', cat.zonas.map((z) => [String(z.id), z.nombre]), '—');
+
+    if (modo === 'editar') {
+      const rr = await fetch(`${API_URL}/reservas/${id}`, opts);
+      if (rr.status === 401) return void (window.location.href = '/login');
+      if (!rr.ok) return void (msg.textContent = 'No se encontró la reserva.');
+      const { reserva } = await rr.json();
+      escribir(reserva);
+    }
+
+    inicial = leer();
+    actualizarVisibilidad();
+    msg.hidden = true;
+    form.hidden = false;
+  }
+
+  campo('tipo_viaje')!.addEventListener('change', actualizarVisibilidad);
+
+  sugerir.addEventListener('click', async () => {
+    const v = leer();
+    sugerirMsg.textContent = 'Consultando…';
+    const res = await fetch(`${API_URL}/reservas/sugerir-precio`, {
+      ...opts,
+      method: 'POST',
+      headers: json,
+      body: JSON.stringify({
+        zona_origen_id: Number(v.zona_origen_id) || undefined,
+        zona_destino_id: Number(v.zona_destino_id) || undefined,
+        vehiculo_id: v.vehiculo_id,
+        tipo_viaje: v.tipo_viaje,
+        paradas_ida: Number(campo('paradas_ida')!.value) || 0,
+        paradas_regreso: v.tipo_viaje === 'round_trip' ? Number(campo('paradas_regreso')!.value) || 0 : 0,
+        moneda: v.moneda || 'USD',
+        cupon: v.cupon_codigo,
+      }),
+    }).catch(() => null);
+
+    const data = res ? await res.json().catch(() => ({})) : {};
+    if (!res || !res.ok) {
+      sugerirMsg.textContent = data.error ?? 'No se pudo sugerir el precio.';
+      return;
+    }
+    campo('monto')!.value = String(data.monto);
+    if (data.moneda) campo('moneda')!.value = data.moneda;
+    sugerirMsg.textContent = `Sugerido: ${data.monto} ${data.moneda ?? ''}. Puedes editarlo.`;
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.hidden = true;
+    guardar.disabled = true;
+
+    const actual = leer();
+    let res: Response | null;
+
+    if (modo === 'crear') {
+      const cuerpo = {
+        ...datosNuevos(actual),
+        nombre: campo('nombre')!.value.trim(),
+        email: campo('email')!.value.trim(),
+        telefono: campo('telefono')!.value.trim(),
+        es_venta: (campo('es_venta') as HTMLInputElement).checked,
+      };
+      res = await fetch(`${API_URL}/reservas/manual`, {
+        ...opts, method: 'POST', headers: json, body: JSON.stringify(cuerpo),
+      }).catch(() => null);
+    } else {
+      const dif = cambios(inicial, actual);
+      if (!Object.keys(dif).length) {
+        window.location.href = `/reservas/${id}`;
+        return;
+      }
+      res = await fetch(`${API_URL}/reservas/${id}`, {
+        ...opts, method: 'PATCH', headers: json, body: JSON.stringify(dif),
+      }).catch(() => null);
+    }
+
+    if (res && res.status === 401) return void (window.location.href = '/login');
+    const data = res ? await res.json().catch(() => ({})) : {};
+    if (!res || !res.ok) {
+      mostrarError(data.error ?? 'No se pudo guardar. Intenta de nuevo.');
+      guardar.disabled = false;
+      return;
+    }
+    window.location.href = modo === 'crear' ? `/reservas/${data.id}` : `/reservas/${id}`;
+  });
+
+  document.addEventListener('auth-ready', iniciar);
+</script>

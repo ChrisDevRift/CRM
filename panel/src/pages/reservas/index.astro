@@ -1,0 +1,248 @@
+---
+// panel/src/pages/reservas/index.astro
+import AppLayout from "../../layouts/AppLayout.astro";
+---
+
+<AppLayout title="Reservas">
+  <div class="barra">
+    <h1>Reservas</h1>
+    <a class="boton-nueva" href="/reservas/nueva">Nueva reserva</a>
+  </div>
+  <div class="filtros">
+    <select id="f-estado" aria-label="Estado">
+      <option value="">Todos los estados</option>
+      <option value="cotizacion_pendiente">Cotización pendiente</option>
+      <option value="cotizacion_respondida">Cotización respondida</option>
+      <option value="confirmada">Confirmada</option>
+      <option value="completada">Completada</option>
+      <option value="cancelada">Cancelada</option>
+    </select>
+    <input id="f-desde" type="date" aria-label="Desde" />
+    <input id="f-hasta" type="date" aria-label="Hasta" />
+    <input
+      id="f-q"
+      type="search"
+      placeholder="Código, nombre o correo"
+      aria-label="Buscar"
+    />
+  </div>
+
+  <div class="lista">
+    <div class="fila fila--header">
+      <span>Código</span>
+      <span>Cliente</span>
+      <span>Servicio</span>
+      <span>Tipo</span>
+      <span>Estado</span>
+      <span>Monto</span>
+    </div>
+    <p id="lista-msg" class="muted">Cargando…</p>
+    <div id="lista-filas"></div>
+  </div>
+</AppLayout>
+
+<style>
+  .barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .barra h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .boton-nueva {
+    background: var(--accent);
+    color: var(--on-accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+  }
+
+  .boton-nueva:hover {
+    background: var(--accent-hover);
+  }
+
+  .filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .filtros select,
+  .filtros input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+  }
+
+  .filtros input[type="search"] {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .muted {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Las filas se crean con JS, así que Astro no les pone su atributo de estilos
+     con alcance: por eso estas reglas van con :global (colgadas de .lista). */
+  .lista {
+    overflow-x: auto;
+  }
+
+  .lista :global(.fila) {
+    display: grid;
+    grid-template-columns: 150px minmax(180px, 1.4fr) 160px 110px 170px 100px;
+    min-width: 940px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+
+  .lista :global(a.fila:hover) {
+    background: var(--surface);
+  }
+
+  .lista :global(.fila--header) {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .lista :global(.fila__codigo) {
+    font-family: var(--font-display);
+  }
+
+  .lista :global(.fila__monto) {
+    text-align: right;
+  }
+
+  .lista :global(.fila__estado) {
+    color: var(--text-muted);
+  }
+
+  .lista :global(.fila__estado--confirmada),
+  .lista :global(.fila__estado--completada) {
+    color: var(--accent);
+  }
+
+  .lista :global(.fila__estado--cancelada) {
+    color: var(--error);
+  }
+</style>
+
+<script>
+  import { API_URL } from "../../lib/api";
+  import {
+    ESTADO_LABELS,
+    TIPO_VIAJE_LABELS,
+    formatearMonto,
+  } from "../../lib/labels";
+
+  const listaFilas = document.querySelector<HTMLDivElement>("#lista-filas")!;
+  const msg = document.querySelector<HTMLParagraphElement>("#lista-msg")!;
+  const fEstado = document.querySelector<HTMLSelectElement>("#f-estado")!;
+  const fDesde = document.querySelector<HTMLInputElement>("#f-desde")!;
+  const fHasta = document.querySelector<HTMLInputElement>("#f-hasta")!;
+  const fQ = document.querySelector<HTMLInputElement>("#f-q")!;
+  // El nombre del cliente lo escribe el cliente en el formulario público: se escapa
+  // antes de meterlo con innerHTML para que no pueda inyectar HTML en el panel.
+  const esc = (v: unknown) =>
+    String(v ?? "").replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]!,
+    );
+  type Reserva = {
+    id: number;
+    codigo: string;
+    cliente_nombre: string;
+    fecha_servicio: string;
+    hora_servicio: string;
+    tipo_viaje: string;
+    estado: string;
+    monto: number;
+    moneda: string;
+  };
+
+  async function cargar() {
+    msg.hidden = false;
+    msg.textContent = "Cargando…";
+    listaFilas.innerHTML = "";
+
+    const params = new URLSearchParams();
+    if (fEstado.value) params.set("estado", fEstado.value);
+    if (fDesde.value) params.set("desde", fDesde.value);
+    if (fHasta.value) params.set("hasta", fHasta.value);
+    if (fQ.value.trim()) params.set("q", fQ.value.trim());
+
+    const res = await fetch(`${API_URL}/reservas?${params.toString()}`, {
+      credentials: "include",
+    });
+
+    if (res.status === 401) {
+      window.location.href = "/login";
+      return;
+    }
+    if (!res.ok) {
+      msg.textContent = "No se pudieron cargar las reservas.";
+      return;
+    }
+
+    const { reservas }: { reservas: Reserva[] } = await res.json();
+
+    if (!reservas.length) {
+      msg.textContent = "No hay reservas con esos filtros.";
+      return;
+    }
+    msg.hidden = true;
+
+    for (const r of reservas) {
+      const fila = document.createElement("a");
+      fila.href = `/reservas/${r.id}`;
+      fila.className = "fila";
+      fila.innerHTML = `
+        <span class="fila__codigo">${esc(r.codigo)}</span>
+        <span>${esc(r.cliente_nombre)}</span>
+        <span>${esc(r.fecha_servicio)} · ${esc(r.hora_servicio)}</span>
+        <span>${esc(TIPO_VIAJE_LABELS[r.tipo_viaje] ?? r.tipo_viaje)}</span>
+        <span class="fila__estado fila__estado--${esc(r.estado)}">${esc(ESTADO_LABELS[r.estado] ?? r.estado)}</span>
+        <span class="fila__monto">${esc(formatearMonto(r.monto, r.moneda))}</span>
+      `;
+      listaFilas.appendChild(fila);
+    }
+  }
+
+  document.addEventListener("auth-ready", cargar);
+  [fEstado, fDesde, fHasta].forEach((el) =>
+    el.addEventListener("change", cargar),
+  );
+
+  let debounce: ReturnType<typeof setTimeout>;
+  fQ.addEventListener("input", () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(cargar, 300);
+  });
+</script>

@@ -1,0 +1,171 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+---
+<AppLayout title="Clientes">
+  <div class="barra">
+    <h1>Clientes</h1>
+  </div>
+
+  <div class="filtros">
+    <input id="f-q" type="search" placeholder="Nombre, correo o teléfono" aria-label="Buscar" />
+  </div>
+
+  <div class="lista">
+    <div class="fila fila--header">
+      <span>Nombre</span>
+      <span>Correo</span>
+      <span>Teléfono</span>
+      <span class="fila__num">Reservas</span>
+      <span class="fila__num">Total (USD)</span>
+      <span>Último servicio</span>
+    </div>
+    <p id="lista-msg" class="muted">Cargando…</p>
+    <div id="lista-filas"></div>
+  </div>
+</AppLayout>
+
+<style>
+  .barra h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 20px;
+  }
+
+  .filtros {
+    margin-bottom: 24px;
+  }
+
+  .filtros input {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+  }
+
+  .muted {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Las filas se crean con JS: sus estilos van con :global, colgados de .lista. */
+  .lista {
+    overflow-x: auto;
+  }
+
+  .lista :global(.fila) {
+    display: grid;
+    grid-template-columns: minmax(170px, 1.2fr) minmax(190px, 1.4fr) 140px 80px 110px 130px;
+    min-width: 900px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+
+  .lista :global(a.fila:hover) {
+    background: var(--surface);
+  }
+
+  .lista :global(.fila--header) {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .lista :global(.fila__num) {
+    text-align: right;
+  }
+
+  .lista :global(.fila__apagado) {
+    color: var(--text-muted);
+  }
+
+  .lista :global(.fila span) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  import { API_URL } from '../../lib/api';
+  import { formatearMonto } from '../../lib/labels';
+
+  const filas = document.querySelector<HTMLDivElement>('#lista-filas')!;
+  const msg = document.querySelector<HTMLParagraphElement>('#lista-msg')!;
+  const buscar = document.querySelector<HTMLInputElement>('#f-q')!;
+
+  type Cliente = {
+    id: number;
+    nombre: string;
+    email: string | null;
+    telefono: string | null;
+    reservas: number;
+    total_usd: number;
+    ultimo_servicio: string | null;
+  };
+
+  // Todo el texto entra por textContent: el nombre lo escribe el cliente en el formulario público.
+  function celda(texto: string, clase = ''): HTMLSpanElement {
+    const s = document.createElement('span');
+    s.textContent = texto;
+    if (clase) s.className = clase;
+    return s;
+  }
+
+  async function cargar() {
+    msg.hidden = false;
+    msg.textContent = 'Cargando…';
+    filas.replaceChildren();
+
+    const params = new URLSearchParams();
+    if (buscar.value.trim()) params.set('q', buscar.value.trim());
+
+    const res = await fetch(`${API_URL}/clientes?${params}`, { credentials: 'include' });
+    if (res.status === 401) {
+      window.location.href = '/login';
+      return;
+    }
+    if (!res.ok) {
+      msg.textContent = 'No se pudieron cargar los clientes.';
+      return;
+    }
+
+    const { clientes }: { clientes: Cliente[] } = await res.json();
+    if (!clientes.length) {
+      msg.textContent = 'No hay clientes con esa búsqueda.';
+      return;
+    }
+    msg.hidden = true;
+
+    for (const c of clientes) {
+      const a = document.createElement('a');
+      a.className = 'fila';
+      a.href = `/clientes/${c.id}`;
+      a.append(
+        celda(c.nombre),
+        celda(c.email ?? '—', c.email ? '' : 'fila__apagado'),
+        celda(c.telefono ?? '—', c.telefono ? '' : 'fila__apagado'),
+        celda(String(c.reservas), 'fila__num'),
+        celda(c.total_usd ? formatearMonto(c.total_usd, 'USD') : '—', 'fila__num'),
+        celda(c.ultimo_servicio ?? '—', c.ultimo_servicio ? '' : 'fila__apagado'),
+      );
+      filas.append(a);
+    }
+  }
+
+  document.addEventListener('auth-ready', cargar);
+
+  let espera: ReturnType<typeof setTimeout>;
+  buscar.addEventListener('input', () => {
+    clearTimeout(espera);
+    espera = setTimeout(cargar, 300);
+  });
+</script>

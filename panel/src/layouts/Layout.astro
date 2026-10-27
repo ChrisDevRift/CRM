@@ -1,0 +1,133 @@
+---
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{title} · Luxury Transfers Riviera CRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Public+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Se ejecuta antes de pintar: aplica el tema y la posición del menú guardados, sin parpadeo. -->
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        try {
+          var t = localStorage.getItem("crm-theme");
+          if (t !== "light" && t !== "dark") {
+            t = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          }
+          d.dataset.theme = t;
+          d.dataset.nav =
+            localStorage.getItem("crm-nav") === "side" ? "side" : "top";
+        } catch (e) {
+          d.dataset.theme = "dark";
+          d.dataset.nav = "top";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0f1115;
+    --surface: #161920;
+    --surface-2: #1d2129;
+    --border: #272b33;
+    --text: #eceae4;
+    --text-muted: #8d929c;
+    --accent: #c6a15b;
+    --accent-hover: #d8b36e;
+    --on-accent: #14151a;
+    --error: #e07856;
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f6f6f3;
+    --surface: #ffffff;
+    --surface-2: #efefea;
+    --border: #e2e2dc;
+    --text: #1c1e22;
+    --text-muted: #63676f;
+    --accent: #8c6b2a;
+    --accent-hover: #755821;
+    --on-accent: #ffffff;
+    --error: #b3402a;
+  }
+
+  :root {
+    --radius: 6px;
+    --radius-lg: 10px;
+    --font-body: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-display: var(--font-body);
+    --font-brand: "Fraunces", Georgia, serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2 {
+    letter-spacing: -0.01em;
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>

@@ -1,0 +1,326 @@
+{
+  "_note": "Coordenadas PROVISIONALES: correr `node scripts/verify-zone-anchors.mjs` y reemplazar las que fallen con el punto sugerido. 'zone' debe ser EXACTAMENTE el nombre del worker de precios (mismo enum de src/content/config.ts). 'id': entero único, asignado en orden de llegada empezando en 0. NUNCA reasignes ni reutilices un id existente — codifica el origen/destino en el bookingCode (ver src/data/zoneAnchors.ts). Los nuevos lugares siempre van al final del array con el id siguiente disponible.",
+  "anchors": [
+    {
+      "id": 0,
+      "code": "cancun-airport",
+      "zone": "AEROPUERTO CANCUN",
+      "label": {
+        "en": "Cancun Airport (CUN)",
+        "es": "Aeropuerto de Cancún (CUN)"
+      },
+      "lat": 21.0365,
+      "lng": -86.8771
+    },
+    {
+      "id": 1,
+      "code": "cancun-hotel-zone",
+      "zone": "ZONA HOTELERA DE CANCUN",
+      "label": { "en": "Cancun Hotel Zone", "es": "Zona Hotelera de Cancún" },
+      "lat": 21.1367,
+      "lng": -86.747
+    },
+    {
+      "id": 2,
+      "code": "puerto-juarez",
+      "zone": "PUERTO JUAREZ",
+      "label": { "en": "Puerto Juarez", "es": "Puerto Juárez" },
+      "lat": 21.1929,
+      "lng": -86.8067
+    },
+    {
+      "id": 3,
+      "code": "puerto-morelos",
+      "zone": "PUERTO MORELOS",
+      "label": { "en": "Puerto Morelos", "es": "Puerto Morelos" },
+      "lat": 20.8496,
+      "lng": -86.8748
+    },
+    {
+      "id": 4,
+      "code": "playa-del-carmen",
+      "zone": "PLAYA DEL CARMEN",
+      "label": { "en": "Playa del Carmen", "es": "Playa del Carmen" },
+      "lat": 20.6296,
+      "lng": -87.073
+    },
+    {
+      "id": 5,
+      "code": "puerto-aventuras",
+      "zone": "PUERTO AVENTURAS",
+      "label": { "en": "Puerto Aventuras", "es": "Puerto Aventuras" },
+      "lat": 20.5085,
+      "lng": -87.236
+    },
+    {
+      "id": 6,
+      "code": "akumal",
+      "zone": "AKUMAL",
+      "label": { "en": "Akumal", "es": "Akumal" },
+      "lat": 20.3905,
+      "lng": -87.319
+    },
+    {
+      "id": 7,
+      "code": "tulum-downtown",
+      "zone": "CENTRO DE TULUM",
+      "label": { "en": "Downtown Tulum", "es": "Centro de Tulum" },
+      "lat": 20.2114,
+      "lng": -87.4654
+    },
+    {
+      "id": 8,
+      "code": "tulum-hotel-zone",
+      "zone": "ZONA HOTELERA DE TULUM",
+      "label": { "en": "Tulum Hotel Zone", "es": "Zona Hotelera de Tulum" },
+      "lat": 20.185,
+      "lng": -87.447
+    },
+    {
+      "id": 9,
+      "code": "felipe-carrillo-puerto",
+      "zone": "FELIPE CARRILLO PUERTO",
+      "label": {
+        "en": "Felipe Carrillo Puerto",
+        "es": "Felipe Carrillo Puerto"
+      },
+      "lat": 19.5786,
+      "lng": -88.0442
+    },
+    {
+      "id": 10,
+      "code": "holbox",
+      "zone": "HOLBOX",
+      "label": { "en": "Holbox", "es": "Holbox" },
+      "lat": 21.523,
+      "lng": -87.379
+    },
+    {
+      "id": 11,
+      "code": "mahahual",
+      "zone": "MAHAHUAL",
+      "label": { "en": "Mahahual", "es": "Mahahual" },
+      "lat": 18.7125,
+      "lng": -87.713
+    },
+    {
+      "id": 12,
+      "code": "bacalar",
+      "zone": "BACALAR",
+      "label": { "en": "Bacalar", "es": "Bacalar" },
+      "lat": 18.6772,
+      "lng": -88.3947
+    },
+    {
+      "id": 13,
+      "code": "chetumal",
+      "zone": "CHETUMAL",
+      "label": { "en": "Chetumal", "es": "Chetumal" },
+      "lat": 18.5001,
+      "lng": -88.296
+    },
+    {
+      "id": 14,
+      "code": "valladolid",
+      "zone": "VALLADOLID",
+      "label": { "en": "Valladolid", "es": "Valladolid" },
+      "lat": 20.6896,
+      "lng": -88.2018
+    },
+    {
+      "id": 15,
+      "code": "merida",
+      "zone": "MERIDA",
+      "label": { "en": "Merida", "es": "Mérida" },
+      "lat": 20.9674,
+      "lng": -89.5926
+    },
+    {
+      "id": 16,
+      "code": "tulum-airport",
+      "zone": "AEROPUERTO TULUM",
+      "label": {
+        "en": "Tulum Airport (TQO)",
+        "es": "Aeropuerto de Tulum (TQO)"
+      },
+      "lat": 20.15935,
+      "lng": -87.5503
+    },
+    {
+      "id": 17,
+      "code": "cancun-downtown",
+      "zone": "CENTRO DE CANCUN",
+      "label": { "en": "Downtown Cancun", "es": "Centro de Cancún" },
+      "lat": 21.15938,
+      "lng": -86.82759
+    },
+    {
+      "id": 18,
+      "code": "playa-mujeres",
+      "zone": "PLAYA MUJERES",
+      "label": { "en": "Playa Mujeres", "es": "Playa Mujeres" },
+      "lat": 21.22423,
+      "lng": -86.80045
+    },
+    {
+      "id": 19,
+      "code": "costa-mujeres",
+      "zone": "COSTA MUJERES",
+      "label": { "en": "Costa Mujeres", "es": "Costa Mujeres" },
+      "lat": 21.27465,
+      "lng": -86.81425
+    },
+    {
+      "id": 20,
+      "code": "playa-paraiso",
+      "zone": "PLAYA PARAISO",
+      "label": { "en": "Playa Paraiso", "es": "Playa Paraíso" },
+      "lat": 20.75946,
+      "lng": -86.93959
+    },
+    {
+      "id": 21,
+      "code": "vidanta-riviera-maya-cirque-du-soleil-joya-theater",
+      "zone": "PLAYA PARAISO",
+      "kind": "venue",
+      "label": {
+        "en": "Vidanta Riviera Maya (Cirque du Soleil JOYÀ Theater)",
+        "es": "Vidanta Riviera Maya (Teatro Cirque du Soleil JOYÀ)"
+      },
+      "lat": 20.75946,
+      "lng": -86.93959
+    },
+    {
+      "id": 22,
+      "code": "xcaret-park",
+      "zone": "PLAYA DEL CARMEN",
+      "kind": "venue",
+      "label": {
+        "en": "Xcaret Park, Puerto Juarez, Colonia Rancho Xcaret, Juárez, Playa del Carmen, Q.R., México",
+        "es": "Parque Xcaret, Puerto Juarez, Colonia Rancho Xcaret, Juárez, Playa del Carmen, Q.R., México"
+      },
+      "lat": 20.6296,
+      "lng": -87.073
+    },
+    {
+      "id": 23,
+      "code": "xelha",
+      "zone": "AKUMAL",
+      "kind": "venue",
+      "label": {
+        "en": "Xel-Há park, Carretera Chetumal Puerto Juárez Km 240, locales 1 & 2, módulo B, Quintana Roo, México",
+        "es": "Parque Xel-Há, Carretera Chetumal Puerto Juárez Km 240, locales 1 & 2, módulo B, Quintana Roo, México"
+      },
+      "lat": 20.3905,
+      "lng": -87.319
+    },
+    {
+      "id": 24,
+      "code": "zona-xelha",
+      "zone": "AKUMAL",
+      "kind": "venue",
+      "label": {
+        "en": "Xelhá Archaeological Zone, Carretera Federal 307, Quintana Roo, México",
+        "es": "Zona Arqueológica Xelhá, Carretera Federal 307, Quintana Roo, México"
+      },
+      "lat": 20.3905,
+      "lng": -87.319
+    },
+    {
+      "id": 25,
+      "code": "delphinus-xelha",
+      "zone": "AKUMAL",
+      "kind": "venue",
+      "label": {
+        "en": "Delphinus Xel-Há, Carretera Chetumal-Cancun Km 240 Locales 1 & 2 Modulo B, Chan Chemuyil, 77780 Q.R., México",
+        "es": "Delphinus Xel-Há, Carretera Chetumal-Cancun Km 240 Locales 1 & 2 Modulo B, Chan Chemuyil, 77780 Q.R., México"
+      },
+      "lat": 20.3905,
+      "lng": -87.319
+    },
+    {
+      "id": 26,
+      "code": "xenses-park",
+      "zone": "PLAYA DEL CARMEN",
+      "kind": "venue",
+      "label": {
+        "en": "Xenses, Playa del Carmen, Q.R., México",
+        "es": "Xenses, Playa del Carmen, Q.R., México"
+      },
+      "lat": 20.6296,
+      "lng": -87.073
+    },
+    {
+      "id": 27,
+      "code": "xplore-park",
+      "zone": "PUERTO AVENTURAS",
+      "kind": "venue",
+      "label": {
+        "en": "Xplor Park, Puerto Juarez, Playa del Carmen, Q.R., México",
+        "es": "Xplor Park, Puerto Juarez, Playa del Carmen, Q.R., México"
+      },
+      "lat": 20.5085,
+      "lng": -87.236
+    },
+    {
+      "id": 28,
+      "code": "hard-rock-hotel",
+      "zone": "PUERTO AVENTURAS",
+      "kind": "venue",
+      "label": {
+        "en": "Hard Rock Hotel Riviera Maya An All Inclusive Experience, Riviera Maya, Q.R., México",
+        "es": "Hard Rock Hotel Riviera Maya An All Inclusive Experience, Riviera Maya, Q.R., México"
+      },
+      "lat": 20.5085,
+      "lng": -87.236
+    },
+    {
+      "id": 29,
+      "code": "hilton-hotel",
+      "zone": "AKUMAL",
+      "kind": "venue",
+      "label": {
+        "en": "Hilton Tulum Riviera Maya All-Inclusive Resort, Carretera Cancún - Tulum, Tulkal, Ciudad Chemuyil, Q.R., México",
+        "es": "Hilton Tulum Riviera Maya All-Inclusive Resort, Carretera Cancún - Tulum, Tulkal, Ciudad Chemuyil, Q.R., México"
+      },
+      "lat": 20.3905,
+      "lng": -87.319
+    },
+    {
+      "id": 30,
+      "code": "occidental-at-xcaret",
+      "zone": "PLAYA DEL CARMEN",
+      "kind": "venue",
+      "label": {
+        "en": "Occidental at Xcaret Destination - All Inclusive, Playa del Carmen, Q.R., México",
+        "es": "Occidental at Xcaret Destination - All Inclusive, Playa del Carmen, Q.R., México"
+      },
+      "lat": 20.6296,
+      "lng": -87.073
+    },
+    {
+      "id": 31,
+      "code": "secrets-akumal",
+      "zone": "AKUMAL",
+      "kind": "venue",
+      "label": {
+        "en": "Secrets Akumal Riviera Maya, Carretera Federal 307, Akumal, Q.R., México",
+        "es": "Secrets Akumal Riviera Maya, Carretera Federal 307, Akumal, Q.R., México"
+      },
+      "lat": 20.3905,
+      "lng": -87.319
+    },
+    {
+      "id": 32,
+      "code": "majestic-mirage",
+      "zone": "COSTA MUJERES",
+      "kind": "venue",
+      "label": {
+        "en": "Majestic Mirage Costa Mujeres - All-Suite Resort, Costa Mujeres, Q.R., México",
+        "es": "Majestic Mirage Costa Mujeres - All-Suite Resort, Costa Mujeres, Q.R., México"
+      },
+      "lat": 21.27465,
+      "lng": -86.81425
+    }
+  ]
+}

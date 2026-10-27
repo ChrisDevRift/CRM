@@ -1,0 +1,8 @@
+{
+  "name": "luxury-crm",
+  "private": true,
+  "workspaces": [
+    "api",
+    "panel"
+  ]
+}

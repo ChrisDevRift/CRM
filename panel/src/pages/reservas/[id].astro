@@ -1,0 +1,437 @@
+---
+// panel/src/pages/reservas/[id].astro
+import AppLayout from "../../layouts/AppLayout.astro";
+
+const { id } = Astro.params;
+---
+
+<AppLayout title="Reserva">
+  <div id="detalle-root" data-id={id}>
+    <p id="detalle-msg" class="muted">Cargando…</p>
+
+    <div id="detalle" hidden>
+      <div class="encabezado">
+        <h1 id="d-codigo"></h1>
+        <span id="d-estado-badge" class="badge"></span>
+        <a id="d-editar" class="boton-sec" href="#">Editar</a>
+      </div>
+
+      <div class="grid">
+        <section>
+          <h2>Cliente</h2>
+          <dl>
+            <dt>Nombre</dt><dd id="d-cliente-nombre"></dd>
+            <dt>Correo</dt><dd id="d-cliente-email"></dd>
+            <dt>Teléfono</dt><dd id="d-cliente-telefono"></dd>
+          </dl>
+        </section>
+
+        <section>
+          <h2>Servicio</h2>
+          <dl>
+            <dt>Origen</dt><dd id="d-origen"></dd>
+            <dt>Destino</dt><dd id="d-destino"></dd>
+            <dt>Fecha y hora</dt><dd id="d-fecha"></dd>
+            <dt>Regreso</dt><dd id="d-regreso"></dd>
+            <dt>Vuelo</dt><dd id="d-vuelo"></dd>
+            <dt>Pasajeros</dt><dd id="d-pasajeros"></dd>
+            <dt>Vehículo</dt><dd id="d-vehiculo"></dd>
+            <dt>Tipo de viaje</dt><dd id="d-tipo-viaje"></dd>
+            <dt>Duración</dt><dd id="d-duracion"></dd>
+            <dt>Landing</dt><dd id="d-landing"></dd>
+            <dt>Fuente</dt><dd id="d-fuente"></dd>
+          </dl>
+        </section>
+
+        <section>
+          <h2>Pago</h2>
+          <dl>
+            <dt>Monto</dt><dd id="d-monto"></dd>
+            <dt>Método</dt><dd id="d-metodo-pago"></dd>
+            <dt>Estado del pago</dt><dd id="d-estado-pago"></dd>
+            <dt>Cupón</dt><dd id="d-cupon"></dd>
+          </dl>
+        </section>
+      </div>
+
+      <form id="form-editar" class="editar">
+        <h2>Actualizar</h2>
+
+        <label for="e-estado">Estado</label>
+        <select id="e-estado" name="estado">
+          <option value="cotizacion_pendiente">Cotización pendiente</option>
+          <option value="cotizacion_respondida">Cotización respondida</option>
+          <option value="confirmada">Confirmada</option>
+          <option value="completada">Completada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+
+        <label for="e-notas">Notas</label>
+        <textarea id="e-notas" name="notas" rows="4"></textarea>
+
+        <div class="editar__acciones">
+          <button type="submit">Guardar</button>
+          <span id="editar-msg" class="muted"></span>
+        </div>
+      </form>
+
+      <section class="historial">
+        <h2>Historial</h2>
+        <ol id="historial-lista"></ol>
+      </section>
+    </div>
+  </div>
+</AppLayout>
+
+<style>
+  .encabezado {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .encabezado h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  .badge {
+    font-size: 0.85rem;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px 10px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+
+  .grid h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+
+  dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    font-size: 0.9rem;
+  }
+
+  dt {
+    color: var(--text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  .editar {
+    max-width: 420px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .editar h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+
+  .editar label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 12px;
+  }
+
+  .editar select,
+  .editar textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .editar__acciones {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .editar__acciones button {
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .editar__acciones button:hover {
+    background: var(--accent-hover);
+  }
+
+  .boton-sec {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  .boton-sec:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .historial {
+    max-width: 720px;
+    margin-top: 40px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+
+  .historial h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+
+  .historial ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 0.9rem;
+  }
+
+  .historial :global(.ev__meta) {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .historial :global(.ev__linea) {
+    display: block;
+  }
+
+  @media (max-width: 800px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { API_URL } from "../../lib/api";
+  import {
+    ESTADO_LABELS,
+    TIPO_VIAJE_LABELS,
+    VEHICULO_LABELS,
+    ESTADO_PAGO_LABELS,
+    FUENTE_LABELS,
+    CAMPO_LABELS,
+    formatearMonto,
+  } from "../../lib/labels";
+
+  const root = document.querySelector<HTMLDivElement>("#detalle-root")!;
+  const id = root.dataset.id;
+
+  const msg = document.querySelector<HTMLParagraphElement>("#detalle-msg")!;
+  const detalle = document.querySelector<HTMLDivElement>("#detalle")!;
+
+  const el = (sel: string) => document.querySelector<HTMLElement>(sel)!;
+
+  async function cargar() {
+    const res = await fetch(`${API_URL}/reservas/${id}`, {
+      credentials: "include",
+    });
+
+    if (res.status === 401) {
+      window.location.href = "/login";
+      return;
+    }
+    if (!res.ok) {
+      msg.textContent = "No se encontró la reserva.";
+      return;
+    }
+
+    const { reserva: r } = await res.json();
+
+    el("#d-codigo").textContent = r.codigo;
+    el("#d-estado-badge").textContent = ESTADO_LABELS[r.estado] ?? r.estado;
+
+    const enlaceCliente = document.createElement("a");
+    enlaceCliente.href = `/clientes/${r.cliente_id}`;
+    enlaceCliente.textContent = r.cliente_nombre;
+    el("#d-cliente-nombre").replaceChildren(enlaceCliente);
+    el("#d-cliente-email").textContent = r.cliente_email || "—";
+    el("#d-cliente-telefono").textContent = r.cliente_telefono || "—";
+
+    el("#d-origen").textContent = r.origen;
+    el("#d-destino").textContent = r.destino;
+    el("#d-fecha").textContent = `${r.fecha_servicio} · ${r.hora_servicio}`;
+    el("#d-regreso").textContent = r.fecha_regreso
+      ? `${r.fecha_regreso} · ${r.hora_regreso ?? ""}`
+      : "—";
+    el("#d-vuelo").textContent =
+      [r.vuelo, r.vuelo_regreso].filter(Boolean).join(" / ") || "—";
+    el("#d-pasajeros").textContent = String(r.pasajeros);
+    el("#d-vehiculo").textContent =
+      VEHICULO_LABELS[r.vehiculo_id] ?? r.vehiculo_id;
+    el("#d-tipo-viaje").textContent =
+      TIPO_VIAJE_LABELS[r.tipo_viaje] ?? r.tipo_viaje;
+    el("#d-duracion").textContent = r.duracion_min
+      ? `${r.duracion_min} min`
+      : "—";
+    el("#d-landing").textContent =
+      r.ancla_origen_id !== null && r.ancla_destino_id !== null
+        ? `${r.ancla_origen_nombre ?? "#" + r.ancla_origen_id} → ${r.ancla_destino_nombre ?? "#" + r.ancla_destino_id}`
+        : "—";
+    el("#d-fuente").textContent = FUENTE_LABELS[r.fuente] ?? r.fuente;
+    (el("#d-editar") as HTMLAnchorElement).href = `/reservas/${id}/editar`;
+
+    el("#d-monto").textContent = formatearMonto(r.monto, r.moneda);
+    el("#d-metodo-pago").textContent = r.metodo_pago ?? "—";
+    el("#d-estado-pago").textContent =
+      ESTADO_PAGO_LABELS[r.estado_pago] ?? r.estado_pago;
+    el("#d-cupon").textContent = r.cupon_codigo ?? "—";
+
+    (document.querySelector("#e-estado") as HTMLSelectElement).value = r.estado;
+    (document.querySelector("#e-notas") as HTMLTextAreaElement).value =
+      r.notas ?? "";
+
+    msg.hidden = true;
+    detalle.hidden = false;
+    cargarHistorial();
+  }
+
+  // ── Historial de cambios ──
+  type Evento = {
+    tipo: string;
+    created_at: string;
+    usuario: string | null;
+    detalle:
+      | Record<string, { antes: unknown; despues: unknown }>
+      | { fuente?: string }
+      | null;
+  };
+
+  const texto = (v: unknown) => {
+    if (v === null || v === undefined || v === "") return "—";
+    const s = String(ESTADO_LABELS[String(v)] ?? v);
+    return s.length > 60 ? s.slice(0, 57) + "…" : s;
+  };
+
+  function lineasDe(e: Evento): string[] {
+    if (e.tipo === "creada") {
+      const fuente = (e.detalle as { fuente?: string } | null)?.fuente;
+      return [
+        `Reserva creada${fuente ? ` (${FUENTE_LABELS[fuente] ?? fuente})` : ""}`,
+      ];
+    }
+    const cambios = (e.detalle ?? {}) as Record<
+      string,
+      { antes: unknown; despues: unknown }
+    >;
+    return Object.entries(cambios).map(
+      ([campo, c]) =>
+        `${CAMPO_LABELS[campo] ?? campo}: ${texto(c.antes)} → ${texto(c.despues)}`,
+    );
+  }
+
+  async function cargarHistorial() {
+    const res = await fetch(`${API_URL}/reservas/${id}/eventos`, {
+      credentials: "include",
+    });
+    if (!res.ok) return;
+    const { eventos }: { eventos: Evento[] } = await res.json();
+    const lista = document.querySelector<HTMLOListElement>("#historial-lista")!;
+    lista.replaceChildren();
+
+    if (!eventos.length) {
+      const li = document.createElement("li");
+      li.className = "muted";
+      li.textContent = "Sin cambios registrados.";
+      lista.append(li);
+      return;
+    }
+
+    for (const e of eventos) {
+      const li = document.createElement("li");
+      const meta = document.createElement("span");
+      meta.className = "ev__meta ev__linea";
+      // SQLite guarda la hora en UTC; se muestra en hora de Cancún.
+      const cuando = new Date(
+        e.created_at.replace(" ", "T") + "Z",
+      ).toLocaleString("es-MX", {
+        timeZone: "America/Cancun",
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+      meta.textContent = `${cuando} · ${e.usuario ?? "Sistema"}`;
+      li.append(meta);
+      for (const linea of lineasDe(e)) {
+        const p = document.createElement("span");
+        p.className = "ev__linea";
+        p.textContent = linea;
+        li.append(p);
+      }
+      lista.append(li);
+    }
+  }
+
+  document.addEventListener("auth-ready", cargar);
+
+  const form = document.querySelector<HTMLFormElement>("#form-editar")!;
+  const editarMsg = document.querySelector<HTMLSpanElement>("#editar-msg")!;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    editarMsg.textContent = "Guardando…";
+
+    const estado = (document.querySelector("#e-estado") as HTMLSelectElement)
+      .value;
+    const notas = (document.querySelector("#e-notas") as HTMLTextAreaElement)
+      .value;
+
+    const res = await fetch(`${API_URL}/reservas/${id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ estado, notas }),
+    });
+
+    if (!res.ok) {
+      editarMsg.textContent = "No se pudo guardar. Intenta de nuevo.";
+      return;
+    }
+
+    editarMsg.textContent = "Guardado.";
+    el("#d-estado-badge").textContent = ESTADO_LABELS[estado] ?? estado;
+    cargarHistorial();
+  });
+</script>

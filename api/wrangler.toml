@@ -1,0 +1,22 @@
+name = "crm-api"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+routes = [{ pattern = "crm-api.luxurytransfersriviera.com.mx", custom_domain = true }]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "crm-db"
+# Reemplaza esto con el ID real que te da `wrangler d1 create crm-db`
+database_id = "c8b9f3ae-a78b-4e19-a241-060f955eb0ce"
+
+[vars]
+ENVIRONMENT = "production"
+# Déjalo vacío mientras el panel no tenga dominio decidido — la cookie
+# funciona host-only (sirve para local/dev). Cuando el panel esté en
+# crm.luxurytransfersriviera.com.mx, ponle ".luxurytransfersriviera.com.mx".
+COOKIE_DOMAIN = ".luxurytransfersriviera.com.mx"
+CORS_ORIGIN = "https://crm.luxurytransfersriviera.com.mx"
+# Origen del panel en dev — ajusta/agrega el de producción cuando exista. 
+# URL del worker de pagos (sin "/" final), para sugerir precios al crear reservas a mano.
+PAYMENTS_WORKER_URL = "https://pruebas.luxurytransfersriviera2025.workers.dev"

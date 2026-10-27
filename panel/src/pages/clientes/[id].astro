@@ -1,0 +1,348 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+
+const { id } = Astro.params;
+---
+<AppLayout title="Cliente">
+  <div id="cl-root" data-id={id}>
+    <p id="cl-msg" class="muted">Cargando…</p>
+
+    <div id="cl-detalle" hidden>
+      <a class="volver" href="/clientes">← Clientes</a>
+      <h1 id="cl-titulo"></h1>
+
+      <dl class="resumen">
+        <div><dt>Reservas</dt><dd id="cl-reservas"></dd></div>
+        <div><dt>Total (USD)</dt><dd id="cl-total"></dd></div>
+        <div><dt>Último servicio</dt><dd id="cl-ultimo"></dd></div>
+        <div><dt>Cliente desde</dt><dd id="cl-alta"></dd></div>
+      </dl>
+
+      <form id="cl-form" class="form">
+        <h2>Datos</h2>
+        <div class="rejilla">
+          <label class="campo"><span>Nombre</span><input name="nombre" required /></label>
+          <label class="campo"><span>Correo</span><input name="email" type="email" /></label>
+          <label class="campo"><span>Teléfono</span><input name="telefono" type="tel" /></label>
+          <label class="campo">
+            <span>Idioma preferido</span>
+            <select name="idioma_preferido">
+              <option value="es">Español</option>
+              <option value="en">Inglés</option>
+            </select>
+          </label>
+          <label class="campo campo--ancho">
+            <span>Notas internas (el cliente no las ve)</span>
+            <textarea name="notas_internas" rows="3"></textarea>
+          </label>
+        </div>
+        <p id="cl-error" class="error" role="alert" hidden></p>
+        <div class="acciones">
+          <button type="submit" id="cl-guardar">Guardar</button>
+          <span id="cl-ok" class="muted"></span>
+        </div>
+      </form>
+
+      <section class="historial">
+        <h2>Reservas</h2>
+        <div class="lista">
+          <div class="fila fila--header">
+            <span>Código</span><span>Servicio</span><span>Tipo</span><span>Estado</span><span class="fila__num">Monto</span>
+          </div>
+          <p id="cl-sin-reservas" class="muted" hidden>Este cliente no tiene reservas.</p>
+          <div id="cl-reservas-filas"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</AppLayout>
+
+<style>
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 8px 0 24px;
+  }
+
+  h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+
+  .muted {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .volver {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .volver:hover {
+    color: var(--accent);
+  }
+
+  .resumen {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 0 0 32px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .resumen dt {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .resumen dd {
+    margin: 2px 0 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .form {
+    max-width: 720px;
+    margin-bottom: 40px;
+  }
+
+  .rejilla {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 20px;
+  }
+
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .campo--ancho {
+    grid-column: 1 / -1;
+  }
+
+  .campo span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .campo input,
+  .campo select,
+  .campo textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+  }
+
+  .campo textarea {
+    resize: vertical;
+  }
+
+  .error {
+    color: var(--error);
+    font-size: 0.9rem;
+  }
+
+  .acciones {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .acciones button {
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 22px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .acciones button:hover {
+    background: var(--accent-hover);
+  }
+
+  .acciones button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .historial {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+
+  .lista {
+    overflow-x: auto;
+  }
+
+  .lista :global(.fila) {
+    display: grid;
+    grid-template-columns: 150px minmax(200px, 1.6fr) 110px 170px 100px;
+    min-width: 780px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+
+  .lista :global(a.fila:hover) {
+    background: var(--surface);
+  }
+
+  .lista :global(.fila--header) {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .lista :global(.fila__num) {
+    text-align: right;
+  }
+
+  .lista :global(.fila__estado--cancelada) {
+    color: var(--error);
+  }
+
+  .lista :global(.fila__estado--confirmada),
+  .lista :global(.fila__estado--completada) {
+    color: var(--accent);
+  }
+
+  .lista :global(.fila span) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 700px) {
+    .resumen {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rejilla {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { API_URL } from '../../lib/api';
+  import { ESTADO_LABELS, TIPO_VIAJE_LABELS, formatearMonto } from '../../lib/labels';
+
+  const id = document.querySelector<HTMLDivElement>('#cl-root')!.dataset.id;
+  const el = (s: string) => document.querySelector<HTMLElement>(s)!;
+  const form = document.querySelector<HTMLFormElement>('#cl-form')!;
+  const campo = (n: string) => form.elements.namedItem(n) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+  const CAMPOS = ['nombre', 'email', 'telefono', 'idioma_preferido', 'notas_internas'];
+
+  let inicial: Record<string, string> = {};
+
+  function celda(texto: string, clase = ''): HTMLSpanElement {
+    const s = document.createElement('span');
+    s.textContent = texto;
+    if (clase) s.className = clase;
+    return s;
+  }
+
+  async function cargar() {
+    const res = await fetch(`${API_URL}/clientes/${id}`, { credentials: 'include' });
+    if (res.status === 401) {
+      window.location.href = '/login';
+      return;
+    }
+    if (!res.ok) {
+      el('#cl-msg').textContent = 'No se encontró el cliente.';
+      return;
+    }
+
+    const { cliente, resumen, reservas } = await res.json();
+
+    el('#cl-titulo').textContent = cliente.nombre;
+    el('#cl-reservas').textContent = String(resumen.reservas);
+    el('#cl-total').textContent = resumen.total_usd ? formatearMonto(resumen.total_usd, 'USD') : '—';
+    el('#cl-ultimo').textContent = resumen.ultimo_servicio ?? '—';
+    el('#cl-alta').textContent = String(cliente.fecha_alta).slice(0, 10);
+
+    for (const c of CAMPOS) campo(c).value = cliente[c] ?? '';
+    inicial = Object.fromEntries(CAMPOS.map((c) => [c, campo(c).value]));
+
+    const filas = el('#cl-reservas-filas');
+    filas.replaceChildren();
+    el('#cl-sin-reservas').hidden = reservas.length > 0;
+    for (const r of reservas) {
+      const a = document.createElement('a');
+      a.className = 'fila';
+      a.href = `/reservas/${r.id}`;
+      a.append(
+        celda(r.codigo),
+        celda(`${r.fecha_servicio} · ${r.hora_servicio}`),
+        celda(TIPO_VIAJE_LABELS[r.tipo_viaje] ?? r.tipo_viaje),
+        celda(ESTADO_LABELS[r.estado] ?? r.estado, `fila__estado--${r.estado}`),
+        celda(formatearMonto(r.monto, r.moneda), 'fila__num'),
+      );
+      filas.append(a);
+    }
+
+    el('#cl-msg').hidden = true;
+    el('#cl-detalle').hidden = false;
+  }
+
+  document.addEventListener('auth-ready', cargar);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorEl = el('#cl-error');
+    const ok = el('#cl-ok');
+    errorEl.hidden = true;
+    ok.textContent = '';
+
+    // Solo se manda lo que cambió.
+    const cambios: Record<string, string> = {};
+    for (const c of CAMPOS) if (campo(c).value.trim() !== inicial[c].trim()) cambios[c] = campo(c).value.trim();
+    if (!Object.keys(cambios).length) {
+      ok.textContent = 'Sin cambios.';
+      return;
+    }
+
+    const boton = el('#cl-guardar') as HTMLButtonElement;
+    boton.disabled = true;
+    const res = await fetch(`${API_URL}/clientes/${id}`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cambios),
+    }).catch(() => null);
+    boton.disabled = false;
+
+    if (res && res.status === 401) {
+      window.location.href = '/login';
+      return;
+    }
+    const data = res ? await res.json().catch(() => ({})) : {};
+    if (!res || !res.ok) {
+      errorEl.textContent = data.error ?? 'No se pudo guardar. Intenta de nuevo.';
+      errorEl.hidden = false;
+      return;
+    }
+
+    inicial = { ...inicial, ...cambios };
+    if (cambios.nombre) el('#cl-titulo').textContent = cambios.nombre;
+    ok.textContent = 'Guardado.';
+  });
+</script>
